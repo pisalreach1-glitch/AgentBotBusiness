@@ -1,0 +1,70 @@
+VERIFICATION REPORT — GOOGLE AI STUDIO / GEMINI IMPLEMENTATION
+Date: 24 October 2026
+
+Environment actually used:
+  Windows host (OS: Windows, Python 3.12.10)
+  Virtual environment: .venv (Python 3.12.10)
+  python-telegram-bot 22.8 (with socksio 1.0.0 extra installed)
+  google-genai 2.33.0
+  python-dotenv 1.2.4
+  tzdata 2026.5
+
+Executed commands on Windows host:
+  python -m compileall -q app tests
+  .venv\Scripts\python.exe -m unittest discover -s tests -v
+  cmd.exe /c "echo. | check_windows.bat"
+
+Actual final suite result on Windows host:
+  Ran 50 tests in 3.547s
+  OK
+  Failures: 0
+  Errors: 0
+
+The final suite was executed with Google AI Studio / Gemini SDK (google-genai)
+integration. No Anthropic dependency or Anthropic provider is required in the
+delivered implementation.
+
+Meaningful coverage:
+  - Persistent business profiles and resumable wizard state.
+  - Ownership checks across businesses, documents, callbacks, export and tasks.
+  - Planner -> QA -> new revision -> Marketing source propagation.
+  - Immutable source plans and original profile snapshots.
+  - Imported UTF-8 text plans can be reviewed and revised.
+  - Event idempotency, successful QA/fix result reuse, explicit retry after failure.
+  - Daily caps, observed usage counters and interrupted-run recovery.
+  - Malformed JSON, invalid dates, empty output, truncation and refusals.
+  - Actual Google GenAI SDK client construction without network requests.
+  - Google SDK typed responses, JSON-schema request configuration and async use.
+  - Gemini STOP, MAX_TOKENS, blocked prompts, 429, 403 and 404 responses.
+  - Model thought text excluded from user-visible content.
+  - Telegram application construction with installed python-telegram-bot types.
+  - Private-chat guard, allowlist, edited-message rejection and per-owner locking.
+  - Khmer guided profile/plan menus and five marketing deliverables.
+  - Stale Skip buttons cannot advance a different wizard step.
+  - Failed/partial delivery status, resend without another model request.
+  - Typing action failure does not prevent generation.
+  - UTF-8 export, file-type validation and Khmer/emoji message chunk limits.
+  - Checklist activation, due filtering, owner checks and done-state persistence.
+  - Single-instance operating-system lock (tested on Windows via msvcrt).
+
+Additional local check:
+  .venv\Scripts\python.exe -m compileall -q app tests
+  PASS (exit code 0). All application and test files compiled successfully.
+
+Network and account testing:
+  No real Telegram Bot API requests were sent.
+  No real Gemini model requests were sent.
+  No user's secret credentials were available or used.
+  Network responses in tests are mocks, including Gemini quota/auth errors.
+  The tests establish application behavior, not model answer quality or account
+  access. Google quotas, model availability and billing depend on the project.
+
+Windows status:
+  The Windows BAT scripts (setup_windows.bat, check_windows.bat, start_windows.bat)
+  and .venv virtual environment were verified on this Windows host.
+  check_windows.bat executed successfully with all 50 tests passing.
+
+First real-device check after configuring .env:
+  Run start_windows.bat -> Telegram /start -> create a business profile ->
+  create one plan -> review it -> revise it -> create one marketing draft.
+  Stop/restart the bot and reopen the same plan to check local persistence.
