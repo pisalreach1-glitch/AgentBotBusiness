@@ -129,6 +129,20 @@ class Repository:
             rows = db.execute("SELECT id FROM businesses WHERE owner=? ORDER BY created DESC LIMIT 30", (owner,)).fetchall()
         return [self.business(owner, row["id"]) for row in rows]
 
+    def delete_business(self, owner: int, identifier: str) -> str:
+        biz = self.business(owner, identifier)
+        name = biz["profile"].get("name", "អាជីវកម្ម")
+        with self.connection() as db:
+            db.execute("DELETE FROM tasks WHERE owner=? AND business_id=?", (owner, identifier))
+            db.execute("DELETE FROM artifacts WHERE owner=? AND business_id=?", (owner, identifier))
+            db.execute("DELETE FROM businesses WHERE id=? AND owner=?", (identifier, owner))
+            sess = db.execute("SELECT business_id FROM sessions WHERE owner=?", (owner,)).fetchone()
+            if sess and sess[0] == identifier:
+                other = db.execute("SELECT id FROM businesses WHERE owner=? ORDER BY created DESC LIMIT 1", (owner,)).fetchone()
+                other_id = other[0] if other else None
+                db.execute("UPDATE sessions SET business_id=?, flow='', step=0, data='{}' WHERE owner=?", (other_id, owner))
+        return name
+
     def artifact(self, owner: int, identifier: str) -> dict:
         with self.connection() as db:
             row = db.execute("SELECT * FROM artifacts WHERE id=? AND owner=?", (identifier, owner)).fetchone()

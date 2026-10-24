@@ -15,7 +15,7 @@ Executed commands on Windows host:
   cmd.exe /c "echo. | check_windows.bat"
 
 Actual final suite result on Windows host:
-  Ran 50 tests in 3.547s
+  Ran 52 tests in 3.903s
   OK
   Failures: 0
   Errors: 0
@@ -25,7 +25,7 @@ integration. No Anthropic dependency or Anthropic provider is required in the
 delivered implementation.
 
 Meaningful coverage:
-  - Persistent business profiles and resumable wizard state.
+  - Persistent business profiles, deletion with confirmation and resumable wizard state.
   - Ownership checks across businesses, documents, callbacks, export and tasks.
   - Planner -> QA -> new revision -> Marketing source propagation.
   - Immutable source plans and original profile snapshots.

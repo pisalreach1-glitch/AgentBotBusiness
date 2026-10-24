@@ -114,6 +114,15 @@ class UITests(unittest.IsolatedAsyncioTestCase):
             await self.ui.handle(update(callback=callback), None)
         self.assertEqual(self.repo.business(1, self.bid)["profile"]["budget"], "100 USD")
 
+    async def test_delete_business_flow_and_confirmation(self):
+        del_prompt = update(callback=f"biz:del:{self.bid}")
+        await self.ui.handle(del_prompt, None)
+        self.assertIn("តើអ្នកពិតជាចង់លុប", del_prompt.effective_message.sent[0][0])
+        del_confirm = update(callback=f"biz:delyes:{self.bid}")
+        await self.ui.handle(del_confirm, None)
+        self.assertIn("បានលុបអាជីវកម្ម", del_confirm.effective_message.sent[0][0])
+        self.assertEqual(self.repo.businesses(1), [])
+
     async def test_stale_skip_button_cannot_answer_next_question(self):
         await self.ui.begin(update(), 1, "plan", {"plan_type": "monthly"}, self.bid)
         await self.ui.answer(update(), 1, "Goal")

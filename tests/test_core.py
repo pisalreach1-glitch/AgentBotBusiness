@@ -106,6 +106,18 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(len(self.repo.tasks(10, self.bid, "2026-10-24", True)), 2)
         self.assertEqual(len(self.repo.tasks(10, second, "2026-10-24", True)), 2)
 
+    def test_delete_business_cleans_tasks_artifacts_and_resets_session(self):
+        plan = self.plan()
+        self.repo.activate_tasks(10, plan["id"])
+        with self.assertRaises(UserError):
+            self.repo.delete_business(99, self.bid)
+        name = self.repo.delete_business(10, self.bid)
+        self.assertEqual(name, "សាលាម្ហូប")
+        self.assertEqual(self.repo.businesses(10), [])
+        self.assertIsNone(self.repo.session(10)["business_id"])
+        with self.assertRaises(UserError):
+            self.repo.artifact(10, plan["id"])
+
     def test_import_cannot_be_activated_without_generated_tasks(self):
         imported = self.repo.import_plan(10, self.bid, "អត្ថបទផែនការ")
         with self.assertRaises(UserError):

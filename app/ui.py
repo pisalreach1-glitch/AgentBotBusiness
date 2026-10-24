@@ -177,7 +177,7 @@ class BotUI:
                 profile = self.repo.business(owner, current)["profile"]
                 labels = {"name": "ឈ្មោះ", "offer": "ផលិតផល/សេវា", "audience": "អតិថិជន", "budget": "ថវិកា", "goal": "គោលដៅ", "resources": "ធនធាន"}
                 await self.say(update, "ព័ត៌មានអាជីវកម្មបច្ចុប្បន្ន៖\n" + "\n".join(f"{labels.get(key, key)}: {value}" for key, value in profile.items()))
-                rows.append([("✏️ កែព័ត៌មានបច្ចុប្បន្ន", "biz:edit")])
+                rows.append([("✏️ កែព័ត៌មានបច្ចុប្បន្ន", "biz:edit"), ("🗑️ លុបអាជីវកម្មនេះ", "biz:del:" + current)])
             for item in self.repo.businesses(owner):
                 rows.append([(item["profile"]["name"][:50], "biz:" + item["id"])])
             await self.say(update, "ជ្រើសឬបង្កើតអាជីវកម្ម៖", buttons(rows))
@@ -388,6 +388,21 @@ class BotUI:
         elif action == "biz":
             if arg in {"new", "edit"}:
                 await self.begin(update, owner, "profile", {"edit_id": self.business_id(owner)} if arg == "edit" else {})
+            elif arg == "del" and len(parts) >= 3:
+                target_id = parts[2]
+                biz = self.repo.business(owner, target_id)
+                name = biz["profile"].get("name", "អាជីវកម្ម")
+                confirm_rows = [
+                    [("⚠️ បាទ/ចាស លុបចេញ", f"biz:delyes:{target_id}")],
+                    [("❌ ទេ បោះបង់", "biz:show")]
+                ]
+                await self.say(update, f"⚠️ តើអ្នកពិតជាចង់លុបអាជីវកម្ម «{name}» មែនទេ?\nការលុបនេះនឹងលុបរាល់ផែនការ មាតិកា និងបញ្ជីការងារទាំងអស់របស់អាជីវកម្មនេះជារៀងរហូត។", buttons(confirm_rows))
+            elif arg == "delyes" and len(parts) >= 3:
+                target_id = parts[2]
+                name = self.repo.delete_business(owner, target_id)
+                await self.say(update, f"🗑️ បានលុបអាជីវកម្ម «{name}» និងឯកសារពាក់ព័ន្ធរួចរាល់។", MENU)
+            elif arg == "show":
+                await self.text(update, owner, PROFILE)
             else:
                 business = self.repo.business(owner, arg)
                 self.repo.set_session(owner, arg)
