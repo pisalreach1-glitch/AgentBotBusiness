@@ -66,7 +66,7 @@ class GeminiAdapterTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(reply.text, "")
 
     async def test_quota_auth_and_model_errors_are_safe_and_not_retried(self):
-        for code in (429, 403, 404):
+        for code in (429, 403, 404, 500, 503):
             client = self.client(error=errors.ClientError(code, {"error": {"message": "SECRET_API_KEY", "code": code}}))
             with self.subTest(code=code), patch("google.genai.Client", return_value=client):
                 with self.assertRaises(UserError) as caught:

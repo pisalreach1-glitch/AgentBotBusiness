@@ -51,6 +51,8 @@ class GeminiProvider:
                 raise UserError("មិនអាចចូល Gemini API បាន។ សូមពិនិត្យ API Key និងសិទ្ធិគម្រោងក្នុង Google AI Studio។") from exc
             if exc.code == 404:
                 raise UserError("រកមិនឃើញ Gemini Model នេះសម្រាប់គម្រោងរបស់អ្នក។ សូមពិនិត្យ GEMINI_MODEL ក្នុង .env។") from exc
+            if exc.code in (500, 502, 503, 504):
+                raise UserError("សេវា Gemini (Google) កំពុងរវល់ ឬដាច់ការតភ្ជាប់បណ្តោះអាសន្ន។ សូមចុចសាកល្បងម្ដងទៀត។") from exc
             raise
         candidates = response.candidates or []
         candidate = candidates[0] if candidates else None
