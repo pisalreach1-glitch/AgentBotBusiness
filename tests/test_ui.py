@@ -252,6 +252,9 @@ class UITests(unittest.IsolatedAsyncioTestCase):
             with urllib.request.urlopen(f"http://127.0.0.1:{port}/") as resp:
                 self.assertEqual(resp.status, 200)
                 self.assertEqual(resp.read(), b"OK")
+            req = urllib.request.Request(f"http://127.0.0.1:{port}/", method="HEAD")
+            with urllib.request.urlopen(req) as resp:
+                self.assertEqual(resp.status, 200)
         finally:
             server.shutdown()
             server.server_close()
