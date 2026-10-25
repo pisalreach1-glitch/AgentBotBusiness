@@ -240,3 +240,18 @@ class UITests(unittest.IsolatedAsyncioTestCase):
         callbacks = [button.callback_data for row in keyboard.inline_keyboard for button in row]
         self.assertFalse(any(data.startswith(("qa:", "activate:", "market:")) for data in callbacks))
         self.assertIn("មិនទាន់ពេញលេញ", incoming.effective_message.sent[0][0])
+
+    def test_health_check_server_responds_ok(self):
+        import urllib.request
+        from app.main import start_health_check_server
+        self.assertIsNone(start_health_check_server(None))
+        server = start_health_check_server(0)
+        self.assertIsNotNone(server)
+        port = server.server_port
+        try:
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}/") as resp:
+                self.assertEqual(resp.status, 200)
+                self.assertEqual(resp.read(), b"OK")
+        finally:
+            server.shutdown()
+            server.server_close()

@@ -16,6 +16,7 @@ class Settings:
     max_tokens: int = 5000
     allowed_ids: frozenset[int] = frozenset()
     timezone: str = "Asia/Phnom_Penh"
+    port: int | None = None
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -25,6 +26,13 @@ class Settings:
         missing = [name for name in required if not os.getenv(name, "").strip()]
         if missing:
             raise ValueError("Missing settings: " + ", ".join(missing) + ". Edit .env first.")
+        port_val = None
+        port_str = os.getenv("PORT", "").strip()
+        if port_str:
+            try:
+                port_val = int(port_str)
+            except ValueError:
+                pass
         result = cls(
             telegram_token=os.environ["TELEGRAM_TOKEN"].strip(),
             api_key=os.environ["GEMINI_API_KEY"].strip(),
@@ -34,6 +42,7 @@ class Settings:
             max_tokens=int(os.getenv("AI_MAX_OUTPUT_TOKENS", "5000")),
             allowed_ids=frozenset(int(x.strip()) for x in os.getenv("ALLOWED_USER_IDS", "").split(",") if x.strip()),
             timezone=os.getenv("TIMEZONE", "Asia/Phnom_Penh"),
+            port=port_val,
         )
         if not 1 <= result.daily_requests <= 500 or not 500 <= result.max_tokens <= 12000:
             raise ValueError("Check DAILY_AI_REQUEST_LIMIT and AI_MAX_OUTPUT_TOKENS.")

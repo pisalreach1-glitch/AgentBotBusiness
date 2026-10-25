@@ -15,7 +15,7 @@ Executed commands on Windows host:
   cmd.exe /c "echo. | check_windows.bat"
 
 Actual final suite result on Windows host:
-  Ran 52 tests in 3.903s
+  Ran 53 tests in 4.635s
   OK
   Failures: 0
   Errors: 0

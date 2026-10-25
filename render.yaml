@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: business-agent-bot
+    env: python
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.main
+    envVars:
+      - key: TELEGRAM_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: "gemini-2.5-flash"
+      - key: DATABASE_PATH
+        value: "data/business.sqlite3"
+      - key: TIMEZONE
+        value: "Asia/Phnom_Penh"
+      - key: DAILY_AI_REQUEST_LIMIT
+        value: "30"
+      - key: AI_MAX_OUTPUT_TOKENS
+        value: "5000"
+      - key: ALLOWED_USER_IDS
+        sync: false

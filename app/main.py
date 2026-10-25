@@ -1,7 +1,7 @@
-from __future__ import annotations
-
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
 import sys
+import threading
 
 from telegram.ext import ApplicationBuilder, CallbackQueryHandler, MessageHandler, filters
 
@@ -11,6 +11,31 @@ from .provider import GeminiProvider
 from .repository import Repository
 from .services import AgentService
 from .ui import BotUI
+
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+    def log_message(self, format, *args):
+        pass
+
+
+def start_health_check_server(port: int | None) -> HTTPServer | None:
+    if port is None:
+        return None
+    try:
+        server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        logging.getLogger(__name__).info("Health check server running on port %s", port)
+        return server
+    except Exception as exc:
+        logging.getLogger(__name__).warning("Could not start health check server on port %s (%s)", port, exc)
+        return None
 
 
 def build_application(settings: Settings, provider=None, repository=None):
@@ -42,6 +67,7 @@ def main():
         logging.getLogger(name).setLevel(logging.ERROR)
     try:
         settings = Settings.from_env()
+        start_health_check_server(settings.port)
         with single_instance(settings.database):
             app = build_application(settings)
             app.run_polling(allowed_updates=["message", "callback_query"], drop_pending_updates=False)
